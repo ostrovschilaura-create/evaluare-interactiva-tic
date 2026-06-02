@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Profesor Securizat - Analiză Feedback și Plan Remedial</title>
+    <!-- Tailwind CSS pentru un design modern de dashboard -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .print-card {
+                border: 1px solid #e2e8f0 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Header Centralizat -->
+    <header class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <!-- Iconiță Monitor + Lacăt (Securitate) -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2V5a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 11V1m6 10V1" />
+                </svg>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Modul Securizat de Evaluare Didactică</h1>
+                    <p class="text-xs text-indigo-200">Perspectiva Profesorului: Analiză, Alerte Metodice și Protecție Date</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div class="flex gap-2 bg-white/10 p-1 rounded-lg">
+                    <button id="tab-student-btn" onclick="switchTab('student')" class="px-4 py-2 rounded-md font-medium text-sm transition-all bg-white text-indigo-950 shadow-sm">
+                        Mod Elev (Completare test)
+                    </button>
+                    <button id="tab-dashboard-btn" onclick="switchTab('dashboard')" class="px-4 py-2 rounded-md font-medium text-sm transition-all hover:bg-white/10 text-white flex items-center gap-1.5">
+                        <!-- Iconiță Lacăt Mic -->
+                        <svg xmlns="http://www.w3.org/2000/svg" id="lock-icon" class="w-3.5 h-3.5 text-indigo-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        Dashboard Profesor
+                    </button>
+                </div>
+
+                <!-- Buton Deconectare -->
+                <button id="btn-logout" onclick="logoutTeacher()" class="hidden bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Deconectare
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Zona Principală de Conținut -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+        
+        <!-- ================= SECTIUNEA PRINCIPALA: DASHBOARD ANALIZĂ PROFESOR ================= -->
+        <section id="section-dashboard" class="hidden space-y-6">
+            
+            <!-- Zona de Încărcare Date, Configurare și Securitate -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 no-print">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-xl font-bold text-slate-900">Colectare și Procesare Răspunsuri</h2>
+                            <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
+                                Sesiune Securizată
+                            </span>
+                        </div>
+                        <p class="text-sm text-slate-500 mt-1">Încarcă răspunsurile, analizează statisticile clasei sau exportă datele în formate compatibile Excel/Sheets/Python.</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 w-full lg:w-auto">
+                        <!-- Generator eșantion simulare -->
+                        <button onclick="generateSimulatedData()" class="w-full lg:w-auto bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                            Simulează Clasă (30 elevi)
+                        </button>
+                        
+                        <!-- Paste date brute -->
+                        <button onclick="openPasteModal()" class="w-full lg:w-auto bg-slate-700 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                            Adaugă Manual
+                        </button>
+
+                        <!-- ZONE EXPORT DATE (Optimizate pentru prelucrare avansată) -->
+                        <div class="flex gap-1">
+                            <button onclick="downloadClassCSV()" title="Format ideal pentru prelucrare în Excel, Sheets, SPSS" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-l-xl text-sm font-semibold transition-colors flex items-center justify-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Export CSV
+                            </button>
+                            <button onclick="downloadClassJSON()" title="Format de date structurat (JSON) pentru prelucrare în Python, R sau baze de date" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 rounded-r-xl text-sm font-semibold transition-colors flex items-center justify-center">
+                                <span class="text-xs font-mono font-bold">{ } JSON</span>
+                            </button>
+                        </div>
+
+                        <button onclick="openChangePasswordModal()" class="w-full lg:w-auto bg-indigo-100 hover:bg-indigo-200 text-indigo-800 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2V5a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            Parolă
+                        </button>
+
+                        <button onclick="resetData()" class="w-full lg:w-auto bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                            Resetează
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Status Încărcare Date -->
+                <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status bază de date curentă:</span>
+                    <span id="data-status-badge" class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full">0 Elevi Înregistrați (Fără date)</span>
+                </div>
+            </div>
+
+            <!-- TABLOU STATISTICI PRINCIPALE (Afișat doar dacă avem date) -->
+            <div id="no-data-alert" class="bg-white border border-dashed border-slate-300 p-12 rounded-2xl text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2V5a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <h3 class="text-lg font-bold text-slate-700 mb-1">Lipsă Date pentru Analiză</h3>
+                <p class="text-sm text-slate-500 max-w-md mx-auto mb-6">Pentru a genera automat dashboard-ul cu analize psiho-metodice, neajunsurile identificate și planul de acțiune, te rugăm să simulezi o clasă de elevi sau să adaugi răspunsuri manual.</p>
+                <button onclick="generateSimulatedData()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors shadow-sm inline-flex items-center gap-2">
+                    Simulează Clasă de Test Acum
+                </button>
+            </div>
+
+            <div id="dashboard-content" class="hidden space-y-6">
+                <!-- 4 KPI Principali conform Standarde Evaluare ARACIP -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- KPI 1 -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 print-card">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Indice Progres Cognitiv</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-progress-val" class="text-3xl font-extrabold text-slate-900">-</span>
+                            <span class="text-xs text-slate-400">din 100 max</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2" id="kpi-progress-desc">Evaluarea progresului autodeclarat al elevilor.</p>
+                        <!-- Progress bar mic -->
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-3">
+                            <div id="kpi-progress-bar" class="bg-indigo-600 h-1.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2 -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 print-card">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Climat Psiho-Emoțional</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-climat-val" class="text-3xl font-extrabold text-slate-900">-</span>
+                            <span class="text-xs text-slate-400">Interes / Confort</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2" id="kpi-climat-desc">Procentul de elevi care resimt stări pozitive.</p>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-3">
+                            <div id="kpi-climat-bar" class="bg-emerald-500 h-1.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3 -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 print-card">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Claritate Explicații Profesor</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-clarity-val" class="text-3xl font-extrabold text-slate-900">-</span>
+                            <span class="text-xs text-slate-400">Acceptare / Înțelegere</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2" id="kpi-clarity-desc">Nivelul de accesibilitate a limbajului didactic.</p>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-3">
+                            <div id="kpi-clarity-bar" class="bg-blue-500 h-1.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4 -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 print-card">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Management Timp Curs</span>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <span id="kpi-time-val" class="text-3xl font-extrabold text-slate-900">-</span>
+                            <span class="text-xs text-slate-400">Echilibru Activități</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2" id="kpi-time-desc">Proporția celor mulțumiți de ritmul orei.</p>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-3">
+                            <div id="kpi-time-bar" class="bg-amber-500 h-1.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALERTE PRIVIND NEAJUNSURILE IDENTIFICATE (RED FLAGS) -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 print-card">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3 mb-4">
+                        <span class="p-1.5 bg-red-100 text-red-600 rounded-lg">
+                            <!-- Icon Alertă -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Analiza Automată a Neajunsurilor (Puncte Critice)</h3>
+                            <p class="text-xs text-slate-500">Orice opțiune critică/negativă selectată de peste 25% dintre elevi este afișată aici ca vulnerabilitate.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="weaknesses-container" class="space-y-3">
+                        <!-- Alerte generate dinamic -->
+                    </div>
+                </div>
+
+                <!-- DIAGNOSTIC GENERAL & DISTRIBUȚIE RĂSPUNSURI (GRAFICE RAPIDE) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Distribuție pe Întrebări -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 print-card">
+                        <h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4">Distribuția Detaliată a Opțiunilor Clasei</h3>
+                        
+                        <div id="charts-list-container" class="space-y-6">
+                            <!-- Generat dinamic: bare de procente pentru fiecare din cele 10 întrebări -->
+                        </div>
+
+                        <!-- FEEDBACK CALITATIV TEXT (Q11 CENTRALIZAT) -->
+                        <div class="mt-8 border-t border-slate-100 pt-6">
+                            <h3 class="text-base font-bold text-indigo-950 mb-3 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                </svg>
+                                Sugestii și Comentarii Directe de la Elevi (Format Liber)
+                            </h3>
+                            <div id="textual-feedback-list" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+                                <!-- Comentariile elevilor se vor încărca aici dinamic -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PLAN DE ACȚIUNE REMEDIALĂ GENERAT AUTOMAT -->
+                    <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-md space-y-4 print-card">
+                        <div class="flex items-center gap-2 border-b border-white/10 pb-3">
+                            <span class="p-1.5 bg-indigo-500/20 text-indigo-300 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </span>
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Plan Remedial și Recomandări</h3>
+                                <p class="text-[10px] text-indigo-300">Generat dinamic pe baza slăbiciunilor identificate în colectiv</p>
+                            </div>
+                        </div>
+
+                        <div id="remedial-plan-content" class="text-xs space-y-4 leading-relaxed text-indigo-100">
+                            <!-- Recomandări dinamice în funcție de răspunsurile primite -->
+                        </div>
+
+                        <!-- Butoane export raport -->
+                        <div class="pt-4 border-t border-white/10 no-print space-y-2">
+                            <button onclick="downloadRemedialPlanTxt()" class="w-full bg-indigo-700 hover:bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm border border-indigo-500/30">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Descarcă Raport Analiză (TXT)
+                            </button>
+                            <button onclick="window.print()" class="w-full bg-white text-indigo-950 hover:bg-slate-100 py-2.5 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 6 2 18 2 18 9" />
+                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                    <rect x="6" y="14" width="12" height="8" />
+                                </svg>
+                                Printează Raport de Analiză și Plan Remedial
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================= SECTIUNE ELEV (COMPLETARE CHESTIONAR) ================= -->
+        <section id="section-student" class="space-y-6">
+            <!-- Introducere Elev -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 print-card">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4 mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Formular de Feedback - Elev</h2>
+                        <p class="text-sm text-slate-500 mt-1">Evaluarea modului de desfășurare a lecțiilor de Informatică și TIC</p>
+                    </div>
+                </div>
+                <p class="text-slate-600 leading-relaxed text-xs">
+                    Răspunsurile tale la acest chestionar sunt deosebit de importante pentru optimizarea modului în care ne organizăm orele în laboratoarele de informatică. Te rugăm să fii onest. Datele sunt utilizate la nivel global pentru analiză statistică.
+                </p>
+            </div>
+
+            <!-- Redare Chestionar Elev -->
+            <form id="quiz-form" onsubmit="submitStudentForm(event)" class="space-y-6">
+                <div id="questions-container" class="space-y-6">
+                    <!-- Dinamic -->
+                </div>
+                
+                <!-- ITEM DESCHIS (OPINIA SCRISA DE ELEV DESPRE PROFESOR ȘI MATERIE) -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4 print-card">
+                    <div class="flex items-start gap-3">
+                        <span class="flex-shrink-0 bg-indigo-100 text-indigo-800 text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center mt-0.5">
+                            11
+                        </span>
+                        <div class="space-y-1 w-full">
+                            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Gânduri Libere (Feedback Textual)</span>
+                            <h3 class="text-sm md:text-base font-semibold text-slate-900 leading-snug">Scrie opinia ta liberă despre orele de Informatică și TIC sau despre modul în care profesorul colaborează cu voi:</h3>
+                            <p class="text-xs text-slate-400 italic">Ce ți-a plăcut cel mai mult la stilul profesorului? Ce propuneri de îmbunătățire ai? (Opțional)</p>
+                        </div>
+                    </div>
+                    <div class="pl-0 md:pl-10">
+                        <textarea id="student-text-feedback" rows="4" maxlength="500" placeholder="Scrie aici mesajul tău..." class="w-full bg-slate-50 border border-slate-200 hover:border-indigo-400 focus:border-indigo-500 focus:bg-white rounded-xl p-3 text-xs outline-none transition-all resize-y" oninput="updateCharCount(this)"></textarea>
+                        <div class="text-right text-[10px] text-slate-400 mt-1">
+                            <span id="char-counter">0</span> / 500 caractere
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trimitere -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-xl shadow-md transition-all inline-flex items-center gap-2 text-sm">
+                        Trimite Răspunsul Meu în Baza de Date a Profesorului
+                    </button>
+                </div>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Modale și Alerte -->
+    <div id="modal-alert" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex items-center gap-3 text-emerald-600 mb-3" id="modal-icon-container">
+                <h4 class="text-lg font-bold" id="modal-title">Operațiune Reușită</h4>
+            </div>
+            <p class="text-sm text-slate-600 leading-relaxed" id="modal-message"></p>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+                    Închide
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Paste Manual -->
+    <div id="modal-paste" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
+            <h4 class="text-lg font-bold text-slate-900 mb-2">Introducere Rapidă Răspuns Individual</h4>
+            <p class="text-xs text-slate-500 mb-4">Selectează opțiunile alese de elev pentru fiecare dintre cele 10 dimensiuni metodice:</p>
+            
+            <div id="paste-inputs-container" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+                <!-- Dropdownuri dinamice pentru cele 10 intrebari -->
+            </div>
+            
+            <div class="mt-3 space-y-1">
+                <label class="block text-xs font-semibold text-slate-700 leading-snug">Q11. Sugestie / Comentariu în scris (Opțional)</label>
+                <input type="text" id="paste_q_11" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ex: Profesor înțelegător, ne ajută la ore...">
+            </div>
+
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="closePasteModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+                    Renunță
+                </button>
+                <button onclick="submitManualAnswers()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+                    Salvează Răspunsul
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Autentificare Profesor (SECURIZAT cu admin123) -->
+    <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+            <div class="text-center space-y-2 mb-6">
+                <div class="mx-auto w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shadow-inner">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900">Zonă Restricționată Profesor</h4>
+                <p class="text-xs text-slate-500">Introdu parola de securitate pentru a vizualiza datele, statisticile și planul remedial al clasei.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="auth-password" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Parolă de Acces:</label>
+                    <input type="password" id="auth-password" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold tracking-widest text-center" placeholder="••••••••" onkeydown="if(event.key === 'Enter') loginTeacher()">
+                    <span id="auth-error" class="hidden text-[11px] text-red-500 font-bold mt-1 block">⚠️ Parola introdusă este incorectă!</span>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="closeAuthModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2.5 rounded-lg transition-colors">
+                        Anulează
+                    </button>
+                    <button onclick="loginTeacher()" class="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2.5 rounded-lg transition-colors shadow-sm">
+                        Autentificare
+                    </button>
+                </div>
+            </div>
+            <div class="mt-4 border-t border-slate-100 pt-3 text-center">
+                <span class="text-[10px] text-slate-400 italic">Parola inițială implicită este: <strong class="text-indigo-600 select-all">admin123</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Schimbare Parolă -->
+    <div id="modal-change-password" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100">
+            <h4 class="text-lg font-bold text-slate-900 mb-2">Schimbă Parola de Profesor</h4>
+            <p class="text-xs text-slate-500 mb-4">Alege o parolă nouă pentru a asigura confidențialitatea datelor.</p>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Parola curentă:</label>
+                    <input type="password" id="old-pass-input" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Noua parolă:</label>
+                    <input type="password" id="new-pass-input" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="closeChangePasswordModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                    Renunță
+                </button>
+                <button onclick="submitChangePassword()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                    Salvează Parola Nouă
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scriptul de Logica Didactica si Statistica -->
+    <script>
+        const originalQuestions = [
+            {
+                id: 1,
+                text: "Dacă compari abilitățile tale practice în laboratorul de informatică (programare, editare, utilizare softuri) de la începutul anului școlar cu cele de acum, cum apreciezi propria evoluție?",
+                category: "Îmbunătățirea performanțelor",
+                options: [
+                    { text: "Performanțele mele s-au îmbunătățit semnificativ, acum rezolv sarcini pe care nu le înțelegeam.", interpretare: "Progres maxim / Autonomie ridicată", score: 4, type: "pozitiv" },
+                    { text: "Performanțele mele s-au îmbunătățit moderat, am nevoie uneori de ajutor, dar mă descurc mult mai bine.", interpretare: "Progres mediu / Nivel funcțional standard", score: 3, type: "pozitiv" },
+                    { text: "Performanțele mele au rămas la același nivel ca la începutul anului.", interpretare: "Stagnare cognitivă", score: 2, type: "alerta" },
+                    { text: "Simt că performanțele mele au scăzut sau întâmpin dificultăți mai mari acum.", interpretare: "Regres / Alertă psiho-pedagogică gravă", score: 1, type: "critic" }
+                ]
+            },
+            {
+                id: 2,
+                text: "În ce măsură consideri că limbajul, explicațiile și metodele folosite de profesor te-au ajutat să înțelegi noțiunile teoretice și algoritmii predați în acest an?",
+                category: "Înțelegerea informațiilor transmise",
+                options: [
+                    { text: "În totalitate. Explicațiile au fost extrem de clare, logice și adaptate pe deplin nivelului meu.", interpretare: "Transpoziție didactică perfectă / Claritate maximă", score: 4, type: "pozitiv" },
+                    { text: "În mare măsură. Am înțeles majoritatea conceptelor, cu mici excepții la temele foarte complexe.", interpretare: "Transpoziție didactică optimă / Proces echilibrat", score: 3, type: "pozitiv" },
+                    { text: "În mică măsură. Multe noțiuni au rămas neclare și a trebuit să caut singur explicații în plus.", interpretare: "Decalaj de comunicare didactică", score: 2, type: "alerta" },
+                    { text: "Deloc. Informațiile transmise au fost mult prea greu de urmărit sau abstracte.", interpretare: "Barieră critică de înțelegere / Predare inadecvată", score: 1, type: "critic" }
+                ]
+            },
+            {
+                id: 3,
+                text: "Cum apreciezi managementul timpului pe parcursul orei de Informatică și TIC (repartizarea între teorie, aplicații practice și feedback)?",
+                category: "Aprecierea timpului de lucru",
+                options: [
+                    { text: "Timpul este gestionat excelent: structură echilibrată, lucrăm intens, ora trece extrem de util și rapid.", interpretare: "Densitate optimă / Flux didactic excelent", score: 4, type: "pozitiv" },
+                    { text: "Timpul este gestionat bine: reușim să facem și teorie și practică, deși uneori finalul pare puțin grăbit.", interpretare: "Flux didactic echilibrat cu mici presiuni diacronice", score: 3, type: "pozitiv" },
+                    { text: "Timpul este gestionat ineficient: se vorbește prea mult la tablă și ne rămâne prea puțin timp pentru calculatoare.", interpretare: "Teoretizare excesivă / Deficit de timp de lucru practic", score: 2, type: "alerta" },
+                    { text: "Timpul este pierdut: ritmul este fie mult prea lent și ne plictisim, fie mult prea rapid de nu înțelegem nimic.", interpretare: "Pierderea atenției / Ritm total neadaptat", score: 1, type: "critic" }
+                ]
+            },
+            {
+                id: 4,
+                text: "Evaluând performanța profesorului strict pe componenta de transmitere a informației, care consideri că a fost cel mai eficient instrument utilizat de acesta?",
+                category: "Eficiența transmiterii informațiilor",
+                options: [
+                    { text: "Demonstrațiile practice în timp real efectuate de profesor pe proiector sau ecran partajat.", interpretare: "Succesul demonstrării vizuale interactive", score: 4, type: "pozitiv" },
+                    { text: "Fișele de lucru structurate, materialele online și tutorialele video puse la dispoziție.", interpretare: "Succesul metodelor bazate pe resurse asincrone", score: 4, type: "pozitiv" },
+                    { text: "Explicațiile clasice de la tablă și notarea schemelor logice în caiete.", interpretare: "Stil clasic / Predare tradițională funcțională", score: 3, type: "pozitiv" },
+                    { text: "Asistența individualizată acordată la banca mea în momentul în care am avut o problemă practică.", interpretare: "Valoarea asistenței diferențiate directe", score: 4, type: "pozitiv" }
+                ]
+            },
+            {
+                id: 5,
+                text: "Dacă compari volumul și calitatea cunoștințelor informatice acumulate în acest an cu cele din anii școlari precedenți, cum definești progresul tău global?",
+                category: "Acumularea comparativă de cunoștințe",
+                options: [
+                    { text: "Am acumulat semnificativ mai multe informații utile și aplicabile decât în anii trecuți.", interpretare: "Curbă accelerată de învățare / Randament excepțional", score: 4, type: "pozitiv" },
+                    { text: "Am acumulat o cantitate similară de cunoștințe, ritmul de evoluție fiind constant.", interpretare: "Evoluție liniară continuă", score: 3, type: "pozitiv" },
+                    { text: "Am acumulat mai puține cunoștințe noi, multe teme fiind doar repetări din anii trecuți.", interpretare: "Redundanță curriculară / Plafonare", score: 2, type: "alerta" },
+                    { text: "Nu simt nicio acumulare nouă în acest an școlar.", interpretare: "Involuție cognitivă / Deconectare totală", score: 1, type: "critic" }
+                ]
+            },
+            {
+                id: 6,
+                text: "Care a fost activitatea sau componenta din cadrul orelor de Informatică și TIC care ți-a plăcut cel mai mult și ți-a trezit cel mai mare interes?",
+                category: "Zonele de interes maxim ale elevilor",
+                options: [
+                    { text: "Crearea de proiecte multimedia creative (design web, editare grafică, video sau animații).", interpretare: "Interes gradat pentru design multimedia", score: 4, type: "pozitiv" },
+                    { text: "Scrierea codurilor de programare și rezolvarea de probleme logice prin algoritmi.", interpretare: "Apreciere pentru algoritmică și programare pură", score: 4, type: "pozitiv" },
+                    { text: "Lucrul în echipă pe proiecte comune și provocările digitale interactive de grup.", interpretare: "Preferință pentru activități de grup / Colaborare", score: 4, type: "pozitiv" },
+                    { text: "Descoperirea modului în care funcționează calculatoarele, sistemele de operare și rețelele.", interpretare: "Preferință pentru arhitectură și suport hardware/OS", score: 3, type: "pozitiv" }
+                ]
+            },
+            {
+                id: 7,
+                text: "Ce simți în mod predominant în momentele de dinaintea începerii orei de informatică și pe parcursul acesteia?",
+                category: "Climatul psiho-emoțional al clasei",
+                options: [
+                    { text: "Curiozitate, interes și dorința de a lucra direct la calculator pe teme noi.", interpretare: "Atitudine optimă: Motivație intrinsecă înaltă", score: 4, type: "pozitiv" },
+                    { text: "Satisfacție și relaxare – atmosfera din laborator este plăcută și lipsită de presiune.", interpretare: "Climat securizant / Relaxare didactică constructivă", score: 4, type: "pozitiv" },
+                    { text: "Monotonie, plictiseală sau indiferență – consider ora o simplă rutină din orar.", interpretare: "Stare de alertă: Rutină demotivantă", score: 2, type: "alerta" },
+                    { text: "Stres, teamă sau nesiguranță – îmi este frică să nu greșesc aplicația, să nu fiu certat sau taxat.", interpretare: "Alarmă: Climat punitiv / Anxietate de performanță", score: 1, type: "critic" }
+                ]
+            },
+            {
+                id: 8,
+                text: "Dacă tu ai fi profesorul de Informatică al clasei tale, cum îți imaginezi că ar trebui să se desfășoare o oră perfectă?",
+                category: "Viziunea elevului despre ora optimă",
+                options: [
+                    { text: "Ar fi complet orientată spre proiecte interactive unde elevii aleg singuri ce creează și colaborează intens.", interpretare: "Nevoie sporită de autonomie constructivistă", score: 4, type: "pozitiv" },
+                    { text: "Ar fi o alternanță rapidă de micro-explicații teoretice și aplicații practice scurte, dinamice.", interpretare: "Dorință pentru micro-learning alert", score: 4, type: "pozitiv" },
+                    { text: "Ar fi organizată ca o competiție interactivă cu premii, scoruri și elemente din jocuri video (gamificare).", interpretare: "Cerere de metode ludice și gamificate", score: 4, type: "pozitiv" },
+                    { text: "Ar include discuții libere și aplicate despre Inteligență Artificială, tehnologii noi și gadgeturi.", interpretare: "Așteptare pentru actualizări din peisajul tech curent", score: 3, type: "pozitiv" }
+                ]
+            },
+            {
+                id: 9,
+                text: "Dacă ai avea puterea de a schimba un singur element esențial la ora de Informatică și TIC, ce ai alege cu prioritate?",
+                category: "Direcțiile de schimbare solicitate",
+                options: [
+                    { text: "Materia predată: aș elimina teoria învechită și aș aduce aplicații mult mai moderne (AI, securitate, modelare 3D).", interpretare: "Dezbinare curriculară / Cerere de modernizare software", score: 2, type: "alerta" },
+                    { text: "Modul de evaluare: fără teste teoretice scrise, ci doar pe bază de proiecte practice reale realizate pe parcurs.", interpretare: "Cerere de eliminare a testelor clasice sumative", score: 2, type: "alerta" },
+                    { text: "Infrastructura: calculatoare mult mai performante, ecrane mai bune și softuri licențiate moderne.", interpretare: "Deficiențe logistice raportate de elevi", score: 2, type: "alerta" },
+                    { text: "Modul de comunicare: o atmosferă mult mai relaxată în care greșeala este văzută ca un pas normal spre învățare.", interpretare: "Disfuncție relațională / Cerere de empatie pedagogică", score: 1, type: "critic" }
+                ]
+            },
+            {
+                id: 10,
+                text: "Luând în considerare toate aspectele de mai sus, ce calificativ global acorzi importanței acestei materii pentru viitorul tău?",
+                category: "Aprecierea globală a relevanței",
+                options: [
+                    { text: "Excelent – Este una dintre cele mai importante și de viitor materii din programă.", interpretare: "Relevanță maximă percepută de elev", score: 4, type: "pozitiv" },
+                    { text: "Bine – Este o materia foarte utilă, chiar dacă unele detalii tehnice nu mă pasionează direct.", interpretare: "Relevanță medie / Recunoaștere funcțională", score: 3, type: "pozitiv" },
+                    { text: "Satisfăcător – Utilă pe alocuri, dar s-ar putea face mult mai aplicabilă în viața reală.", interpretare: "Limitări metodice în conectarea cu piața", score: 2, type: "alerta" },
+                    { text: "Nesatisfăcător – Simt că timpul petrecut aici nu mă ajută cu adevărat în dezvoltarea mea.", interpretare: "Respingeri de conținut / Eșec în captarea utilității", score: 1, type: "critic" }
+                ]
+            }
+        ];
+
+        // Întrebările curente folosite
+        let questions = originalQuestions;
+
+        // Baza de date cu răspunsurile colectate de la elevi
+        let studentResponses = JSON.parse(localStorage.getItem('student_responses_db')) || [];
+
+        // --- SISTEM DE SECURITATE / AUTENTIFICARE ---
+        let isTeacherAuthenticated = false;
+        const DEFAULT_PASSWORD = "admin123";
+
+        function getTeacherPassword() {
+            return localStorage.getItem('teacher_access_password') || DEFAULT_PASSWORD;
+        }
+
+        window.onload = function() {
+            updateDashboardUI();
+            renderStudentQuiz();
+            initPasteModalInputs();
+        };
+
+        // Contor de caractere pentru input deschis (mod elev)
+        function updateCharCount(textarea) {
+            const counter = document.getElementById('char-counter');
+            counter.innerText = textarea.value.length;
+        }
+
+        function switchTab(role) {
+            const dashBtn = document.getElementById('tab-dashboard-btn');
+            const studentBtn = document.getElementById('tab-student-btn');
+            const dashSec = document.getElementById('section-dashboard');
+            const studentSec = document.getElementById('section-student');
+
+            if (role === 'dashboard') {
+                if (!isTeacherAuthenticated) {
+                    openAuthModal();
+                    return;
+                }
+                
+                dashBtn.className = "px-4 py-2 rounded-md font-medium text-sm transition-all bg-white text-indigo-950 shadow-sm";
+                studentBtn.className = "px-4 py-2 rounded-md font-medium text-sm transition-all hover:bg-white/10 text-white";
+                dashSec.classList.remove('hidden');
+                studentSec.classList.add('hidden');
+                updateDashboardUI();
+            } else {
+                studentBtn.className = "px-4 py-2 rounded-md font-medium text-sm transition-all bg-white text-indigo-950 shadow-sm";
+                dashBtn.className = "px-4 py-2 rounded-md font-medium text-sm transition-all hover:bg-white/10 text-white";
+                studentSec.classList.remove('hidden');
+                dashSec.classList.add('hidden');
+            }
+        }
+
+        // --- FUNCȚII INTERFAȚĂ AUTH ---
+        function openAuthModal() {
+            const modal = document.getElementById('modal-auth');
+            const input = document.getElementById('auth-password');
+            const err = document.getElementById('auth-error');
+            
+            err.classList.add('hidden');
+            input.value = '';
+            modal.classList.remove('hidden');
+            input.focus();
+        }
+
+        function closeAuthModal() {
+            document.getElementById('modal-auth').classList.add('hidden');
+        }
+
+        function loginTeacher() {
+            const inputPass = document.getElementById('auth-password').value;
+            const correctPass = getTeacherPassword();
+            const err = document.getElementById('auth-error');
+
+            if (inputPass === correctPass) {
+                isTeacherAuthenticated = true;
+                closeAuthModal();
+                
+                document.getElementById('lock-icon').classList.add('hidden');
+                document.getElementById('btn-logout').classList.remove('hidden');
+                
+                switchTab('dashboard');
+                showCustomAlert("Autentificare Reușită", "Bun venit în panoul de management. Accesul este acum securizat.", "emerald");
+            } else {
+                err.classList.remove('hidden');
+                document.getElementById('auth-password').select();
+            }
+        }
+
+        function logoutTeacher() {
+            isTeacherAuthenticated = false;
+            document.getElementById('lock-icon').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.add('hidden');
+            
+            switchTab('student');
+            showCustomAlert("Deconectat", "Sesiunea de profesor a fost închisă. Panoul a fost securizat.", "indigo");
+        }
+
+        // --- SCHIMBARE PAROLĂ ---
+        function openChangePasswordModal() {
+            document.getElementById('old-pass-input').value = '';
+            document.getElementById('new-pass-input').value = '';
+            document.getElementById('modal-change-password').classList.remove('hidden');
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('modal-change-password').classList.add('hidden');
+        }
+
+        function submitChangePassword() {
+            const oldPass = document.getElementById('old-pass-input').value;
+            const newPass = document.getElementById('new-pass-input').value;
+            const currentSavedPass = getTeacherPassword();
+
+            if (oldPass !== currentSavedPass) {
+                showCustomAlert("Eroare", "Parola curentă introdusă este incorectă!", "red");
+                return;
+            }
+
+            if (newPass.trim().length < 4) {
+                showCustomAlert("Eroare", "Noua parolă trebuie să aibă cel puțin 4 caractere!", "red");
+                return;
+            }
+
+            localStorage.setItem('teacher_access_password', newPass);
+            closeChangePasswordModal();
+            showCustomAlert("Succes", "Parola de securitate a fost actualizată cu succes!", "emerald");
+        }
+
+        // --- EXPORT REZULTATE CLASĂ ---
+
+        function downloadClassCSV() {
+            if (studentResponses.length === 0) {
+                showCustomAlert("Eroare", "Nu există răspunsuri înregistrate în baza de date locală pentru a fi exportate.", "amber");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            
+            let headers = ["ID_Elev", "Timestamp_Completare"];
+            questions.forEach((q, idx) => {
+                headers.push(`"Q${idx + 1}_Optiune_Aleasa"`);
+                headers.push(`"Q${idx + 1}_Scor_Numeric"`);
+            });
+            headers.push(`"Q11_Feedback_Textual_Deschis"`);
+            csvContent += headers.join(",") + "\r\n";
+
+            studentResponses.forEach((resp, index) => {
+                let row = [`"Elev_${index + 1}"`, `"${resp.id}"`];
+                
+                questions.forEach(q => {
+                    const ansIdx = resp.answers[q.id];
+                    if (ansIdx !== undefined && q.options[ansIdx]) {
+                        const optionText = q.options[ansIdx].text.replace(/"/g, '""');
+                        const scoreValue = q.options[ansIdx].score || 0;
+                        row.push(`"${optionText}"`);
+                        row.push(scoreValue);
+                    } else {
+                        row.push(`"Nespecificat"`);
+                        row.push(0);
+                    }
+                });
+                
+                const textFeedback = (resp.textFeedback || "").replace(/"/g, '""').replace(/\r?\n|\r/g, " ");
+                row.push(`"${textFeedback}"`);
+                
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Analiza_Feedback_Matrice_Date_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showCustomAlert("Export Realizat (CSV)", "Fisierul CSV conține atât textul, cât și scorurile numerice (1-4) ideale pentru grafice și medii în Excel.", "emerald");
+        }
+
+        function downloadClassJSON() {
+            if (studentResponses.length === 0) {
+                showCustomAlert("Eroare", "Nu există răspunsuri de exportat.", "amber");
+                return;
+            }
+
+            const exportData = studentResponses.map((resp, index) => {
+                let totalScore = 0;
+                let answeredCount = 0;
+                
+                const detailedAnswers = questions.map(q => {
+                    const ansIdx = resp.answers[q.id];
+                    const hasAnswer = (ansIdx !== undefined && q.options[ansIdx]);
+                    const score = hasAnswer ? q.options[ansIdx].score : 0;
+                    
+                    if (hasAnswer) {
+                        totalScore += score;
+                        answeredCount++;
+                    }
+
+                    return {
+                        intrebare_id: q.id,
+                        categorie: q.category,
+                        optiune_text: hasAnswer ? q.options[ansIdx].text : null,
+                        scor_numeric: score,
+                        interpretare_metodica: hasAnswer ? q.options[ansIdx].interpretare : null,
+                        tip_raspuns: hasAnswer ? q.options[ansIdx].type : null
+                    };
+                });
+
+                return {
+                    elev_index: index + 1,
+                    unic_id: resp.id,
+                    media_scor_satisfactie: answeredCount > 0 ? parseFloat((totalScore / answeredCount).toFixed(2)) : 0,
+                    raspunsuri_grila: detailedAnswers,
+                    feedback_textual_deschis: resp.textFeedback || ""
+                };
+            });
+
+            const jsonString = JSON.stringify(exportData, null, 2);
+            
+            const blob = new Blob([jsonString], { type: "application/json;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Baza_Date_Feedback_Agregata_${Date.now()}.json`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showCustomAlert("Export Realizat (JSON)", "Fisierul JSON structurat a fost descărcat. Perfect pentru integrări și scripturi de automatizare.", "indigo");
+        }
+
+        function downloadRemedialPlanTxt() {
+            if (studentResponses.length === 0) {
+                showCustomAlert("Eroare", "Baza de date este goală. Nu se poate genera raportul.", "amber");
+                return;
+            }
+
+            let report = "=================================================================\r\n";
+            report += "RAPORT AGREGAT DE ANALIZĂ DIDACTICĂ ȘI EVALUARE FEEDBACK\r\n";
+            report += "=================================================================\r\n";
+            report += `Dată generare: ${new Date().toLocaleDateString('ro-RO')}\r\n`;
+            report += `Dimensiune eșantion: ${studentResponses.length} elevi\r\n\r\n`;
+
+            report += "I. INDICATORI PRECOMPUTAȚI (Standarde ARACIP):\r\n";
+            report += "-----------------------------------------------------------------\r\n";
+            
+            let totalProgress = 0, positiveClimat = 0, clarityClarity = 0, totalTimeScore = 0;
+            studentResponses.forEach(resp => {
+                const q1Ans = resp.answers[1];
+                if (q1Ans !== undefined) totalProgress += (questions[0].options[q1Ans].score / 4) * 100;
+                const q7Ans = resp.answers[7];
+                if (q7Ans === 0 || q7Ans === 1) positiveClimat++;
+                const q2Ans = resp.answers[2];
+                if (q2Ans === 0 || q2Ans === 1) clarityClarity++;
+                const q3Ans = resp.answers[3];
+                if (q3Ans === 0 || q3Ans === 1) totalTimeScore++;
+            });
+            const count = studentResponses.length;
+
+            report += `[-] Indice Progres Cognitiv: ${Math.round(totalProgress / count)}% / 100%\r\n`;
+            report += `[-] Climat Psiho-Emoțional Optim: ${Math.round((positiveClimat / count) * 100)}%\r\n`;
+            report += `[-] Claritate Explicații Profesor: ${Math.round((clarityClarity / count) * 100)}%\r\n`;
+            report += `[-] Eficiență Management Timp: ${Math.round((totalTimeScore / count) * 100)}%\r\n\r\n`;
+
+            report += "II. DETECTARE AUTOMATĂ A NEAJUNSURILOR (Vulnerabilități > 25%):\r\n";
+            report += "-----------------------------------------------------------------\r\n";
+            
+            let weaknessesFound = 0;
+            questions.forEach(q => {
+                q.options.forEach((opt, optIdx) => {
+                    if (opt.type === 'alerta' || opt.type === 'critic') {
+                        let countOpt = 0;
+                        studentResponses.forEach(resp => {
+                            if (resp.answers[q.id] === optIdx) countOpt++;
+                        });
+                        const percent = countOpt / studentResponses.length;
+                        if (percent >= 0.25) {
+                            weaknessesFound++;
+                            report += `[ALERTA] ${q.category} -> ${Math.round(percent * 100)}% din clasă au ales: "${opt.text}"\r\n`;
+                            report += `         Diagnostic didactic: ${opt.interpretare}\r\n\r\n`;
+                        }
+                    }
+                });
+            });
+            if (weaknessesFound === 0) report += "Nu au fost găsite slăbiciuni de prag critic.\r\n\r\n";
+
+            report += "III. PLAN REMEDIAL DIDACTIC GENERAT AUTOMAT:\r\n";
+            report += "-----------------------------------------------------------------\r\n";
+            
+            if (getOptionPercent(1, 2) + getOptionPercent(1, 3) >= 0.25) {
+                report += "[Plan Progres]: Se recomandă diferențierea sarcinilor pe 3 niveluri distincte în cadrul laboratorului.\r\n";
+            }
+            if (getOptionPercent(2, 2) + getOptionPercent(2, 3) >= 0.25) {
+                report += "[Plan Claritate]: Se impune utilizarea mai frecventă a analogiilor vizuale și spargerea algoritmilor în bucăți mai mici.\r\n";
+            }
+            if (getOptionPercent(3, 2) + getOptionPercent(3, 3) >= 0.25) {
+                report += "[Plan Timp]: Limitarea expunerii teoretice la maxim 15 minute pentru a permite exercițiul practic direct.\r\n";
+            }
+            if (getOptionPercent(7, 3) >= 0.20) {
+                report += "[Plan Climat/Stres]: Eliminarea evaluării rigide la tablă și înlocuirea cu feedback formativ continuu la calculator.\r\n";
+            }
+
+            // Centralizare Feedback Textual în Raportul TXT
+            report += "\r\nIV. SUGESTII ȘI FEEDBACK TEXTUAL DESCHIS (Q11):\r\n";
+            report += "-----------------------------------------------------------------\r\n";
+            let commentsFound = 0;
+            studentResponses.forEach((resp, index) => {
+                if (resp.textFeedback && resp.textFeedback.trim() !== "") {
+                    commentsFound++;
+                    report += `[Elev ${index + 1}]: "${resp.textFeedback.trim()}"\r\n`;
+                }
+            });
+            if (commentsFound === 0) {
+                report += "Nu au fost adăugate comentarii textuale.\r\n";
+            }
+
+            report += "\r\n=================================================================\r\n";
+            report += "Raportul servește drept dovadă a autoevaluării în dosarul CEAC.\r\n";
+            report += "=================================================================\r\n";
+
+            const blob = new Blob([report], { type: "text/plain;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Raport_Evaluare_Agregat_Informatica_${Date.now()}.txt`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showCustomAlert("Raport Text Descărcat", "Analiza și planul de acțiuni au fost exportate în format TXT.", "emerald");
+        }
+
+        // --- SISTEM STATISTICI ȘI AGREGĂRI ---
+
+        function updateDashboardUI() {
+            const statusBadge = document.getElementById('data-status-badge');
+            const noDataAlert = document.getElementById('no-data-alert');
+            const dashContent = document.getElementById('dashboard-content');
+
+            if (studentResponses.length === 0) {
+                statusBadge.className = "bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full";
+                statusBadge.innerText = "0 Elevi Înregistrați (Fără date)";
+                noDataAlert.classList.remove('hidden');
+                dashContent.classList.add('hidden');
+                return;
+            }
+
+            statusBadge.className = "bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full";
+            statusBadge.innerText = `${studentResponses.length} Elevi Înregistrați în Baza de Date`;
+            noDataAlert.classList.add('hidden');
+            dashContent.classList.remove('hidden');
+
+            calculateKpis();
+            detectWeaknesses();
+            renderDistributionCharts();
+            generateRemedialPlan();
+            renderTextualFeedback(); // Noul render pentru răspunsurile deschise
+        }
+
+        // Redare feedback calitativ scris de elevi (Q11)
+        function renderTextualFeedback() {
+            const container = document.getElementById('textual-feedback-list');
+            container.innerHTML = '';
+            let count = 0;
+
+            studentResponses.forEach((resp, idx) => {
+                if (resp.textFeedback && resp.textFeedback.trim() !== '') {
+                    count++;
+                    const item = document.createElement('div');
+                    item.className = "p-3 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 leading-relaxed";
+                    item.innerHTML = `
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-indigo-700">Elev ${idx + 1}</span>
+                            <span class="text-[9px] text-slate-400">ID: ${resp.id}</span>
+                        </div>
+                        <p class="italic">"${resp.textFeedback.trim()}"</p>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+
+            if (count === 0) {
+                container.innerHTML = `
+                    <div class="p-3 text-center text-xs text-slate-400 italic">
+                        Nu au fost trimise comentarii sau sugestii scrise de către elevi în acest eșantion.
+                    </div>
+                `;
+            }
+        }
+
+        function calculateKpis() {
+            let totalProgress = 0;
+            let positiveClimat = 0;
+            let clarityClarity = 0;
+            let totalTimeScore = 0;
+
+            studentResponses.forEach(resp => {
+                const q1Ans = resp.answers[1];
+                if (q1Ans !== undefined) {
+                    totalProgress += (questions[0].options[q1Ans].score / 4) * 100;
+                }
+                const q7Ans = resp.answers[7];
+                if (q7Ans === 0 || q7Ans === 1) {
+                    positiveClimat++;
+                }
+                const q2Ans = resp.answers[2];
+                if (q2Ans === 0 || q2Ans === 1) {
+                    clarityClarity++;
+                }
+                const q3Ans = resp.answers[3];
+                if (q3Ans === 0 || q3Ans === 1) {
+                    totalTimeScore++;
+                }
+            });
+
+            const count = studentResponses.length;
+
+            const progressPct = Math.round(totalProgress / count);
+            const climatPct = Math.round((positiveClimat / count) * 100);
+            const clarityPct = Math.round((clarityClarity / count) * 100);
+            const timePct = Math.round((totalTimeScore / count) * 100);
+
+            document.getElementById('kpi-progress-val').innerText = `${progressPct}%`;
+            document.getElementById('kpi-progress-bar').style.width = `${progressPct}%`;
+            setKpiFeedback('kpi-progress-desc', progressPct, "Abilități autodeclarate îmbunătățite.", "Stagnare generală detectată.");
+
+            document.getElementById('kpi-climat-val').innerText = `${climatPct}%`;
+            document.getElementById('kpi-climat-bar').style.width = `${climatPct}%`;
+            setKpiFeedback('kpi-climat-desc', climatPct, "Climat securizant de lucru, bazat pe interes.", "Nivel ridicat de anxietate sau plictiseală!");
+
+            document.getElementById('kpi-clarity-val').innerText = `${clarityPct}%`;
+            document.getElementById('kpi-clarity-bar').style.width = `${clarityPct}%`;
+            setKpiFeedback('kpi-clarity-desc', clarityPct, "Limbajul didactic utilizat este perfect adaptat clasei.", "Elevii semnalează limbaj neclar sau prea teoretic!");
+
+            document.getElementById('kpi-time-val').innerText = `${timePct}%`;
+            document.getElementById('kpi-time-bar').style.width = `${timePct}%`;
+            setKpiFeedback('kpi-time-desc', timePct, "Ora este echilibrată între teorie și practică.", "Probleme metodice grave de împărțire a timpului!");
+        }
+
+        function setKpiFeedback(elementId, value, positiveText, negativeText) {
+            const descEl = document.getElementById(elementId);
+            if (value >= 70) {
+                descEl.className = "text-xs text-emerald-600 font-semibold mt-2";
+                descEl.innerText = "✓ " + positiveText;
+            } else {
+                descEl.className = "text-xs text-red-500 font-bold mt-2 animate-pulse";
+                descEl.innerText = "⚠️ " + negativeText;
+            }
+        }
+
+        // --- DETECTARE AUTOMATĂ A NEAJUNSURILOR ---
+        function detectWeaknesses() {
+            const container = document.getElementById('weaknesses-container');
+            container.innerHTML = '';
+            
+            let weaknessesFound = 0;
+            const threshold = 0.25;
+
+            questions.forEach(q => {
+                q.options.forEach((opt, optIdx) => {
+                    if (opt.type === 'alerta' || opt.type === 'critic') {
+                        let count = 0;
+                        studentResponses.forEach(resp => {
+                            if (resp.answers[q.id] === optIdx) count++;
+                        });
+
+                        const percent = count / studentResponses.length;
+                        if (percent >= threshold) {
+                            weaknessesFound++;
+                            const card = document.createElement('div');
+                            card.className = "p-4 rounded-xl border border-red-200 bg-red-50/70 flex flex-col md:flex-row justify-between items-start md:items-center gap-3";
+                            card.innerHTML = `
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-red-200 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">${q.category}</span>
+                                        <span class="text-xs font-bold text-red-600">${Math.round(percent * 100)}% din clasă semnalează asta:</span>
+                                    </div>
+                                    <p class="text-sm font-semibold text-slate-800">${opt.text}</p>
+                                    <p class="text-xs text-slate-500 italic"><strong>Diagnostic didactic:</strong> ${opt.interpretare}</p>
+                                </div>
+                                <div class="shrink-0 bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-lg">
+                                    Prioritate: MEDIE
+                                </div>
+                            `;
+                            if (opt.type === 'critic' && percent >= 0.40) {
+                                card.className = "p-4 rounded-xl border-2 border-red-400 bg-red-100/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 animate-pulse";
+                                card.querySelector('.shrink-0').className = "shrink-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-lg";
+                                card.querySelector('.shrink-0').innerText = "PRIORITATE MAXIMĂ";
+                            }
+                            container.appendChild(card);
+                        }
+                    }
+                });
+            });
+
+            if (weaknessesFound === 0) {
+                container.innerHTML = `
+                    <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-center text-emerald-800 text-sm font-semibold">
+                        🎉 Felicitări! Nu au fost identificate neajunsuri critice care să depășească pragul de alertă de 25% la niciuna dintre dimensiunile didactice studiate.
+                    </div>
+                `;
+            }
+        }
+
+        // --- DISTRIBUȚIE RĂSPUNSURI (GRAFICE BARE) ---
+        function renderDistributionCharts() {
+            const container = document.getElementById('charts-list-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                const total = studentResponses.length;
+                const counts = Array(q.options.length).fill(0);
+
+                studentResponses.forEach(resp => {
+                    const ans = resp.answers[q.id];
+                    if (ans !== undefined && ans < counts.length) counts[ans]++;
+                });
+
+                const qChartCard = document.createElement('div');
+                qChartCard.className = "space-y-2 border-b border-slate-100 pb-4 last:border-0";
+                
+                let optionsHtml = q.options.map((opt, optIdx) => {
+                    const count = counts[optIdx];
+                    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                    
+                    let colorClass = "bg-indigo-600";
+                    if (opt.type === "alerta") colorClass = "bg-amber-500";
+                    if (opt.type === "critic") colorClass = "bg-red-500";
+
+                    return `
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-600 truncate max-w-[85%]">${String.fromCharCode(65 + optIdx)}) ${opt.text}</span>
+                                <span class="font-bold text-slate-800 shrink-0">${pct}% (${count})</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="${colorClass} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                qChartCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <h4 class="text-xs font-bold text-slate-900 leading-snug"><span class="text-indigo-600">Q${idx + 1}.</span> ${q.text}</h4>
+                        <span class="text-[10px] uppercase font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded ml-2 shrink-0">${q.category}</span>
+                    </div>
+                    <div class="space-y-2 mt-2">
+                        ${optionsHtml}
+                    </div>
+                `;
+
+                container.appendChild(qChartCard);
+            });
+        }
+
+        // --- SISTEM AUTOMAT DE RECOMANDĂRI METODICE ---
+        function generateRemedialPlan() {
+            const planContent = document.getElementById('remedial-plan-content');
+            planContent.innerHTML = '';
+
+            let recommendations = [];
+
+            if (getOptionPercent(1, 2) + getOptionPercent(1, 3) >= 0.25) {
+                recommendations.push({
+                    title: "Diferențierea activităților de laborator",
+                    text: `Pentru că unii elevi raportează stagnare în performanțe, se recomandă renunțarea la formatul de aplicații unice pentru întreaga clasă. Introduceți sarcini pe 3 niveluri de dificultate (Minim, Mediu, Excelență) lăsând elevii să își aleagă pragul de confort.`
+                });
+            }
+
+            if (getOptionPercent(2, 2) + getOptionPercent(2, 3) >= 0.25) {
+                recommendations.push({
+                    title: "Simplificarea limbajului didactic",
+                    text: `Un procent ridicat de elevi întâmpină probleme de înțelegere. Recomandare: Utilizați tehnica 'Analogiei Fizice' pentru a explica conceptele de programare și spargeți demonstrațiile practice în micro-secvențe de maximum 5 minute.`
+                });
+            }
+
+            if (getOptionPercent(3, 2) + getOptionPercent(3, 3) >= 0.25) {
+                recommendations.push({
+                    title: "Creșterea densității activității practice",
+                    text: `Elevii consideră ora ineficientă sub raportul gestionării timpului. Se recomandă limitarea expunerii teoretice la maxim 15 minute din cele 50. Restul timpului trebuie dedicat exclusiv practicii de codare asistate de fișe de lucru direct pe calculatoare.`
+                });
+            }
+
+            if (getOptionPercent(7, 3) >= 0.20) {
+                recommendations.push({
+                    title: "Reducerea anxietății de evaluare",
+                    text: `O parte dintre elevi resimt teamă și stres înainte de oră. Se impune renunțarea la notările punitive neanunțate la tablă. Evaluările trebuie transformate în micro-proiecte asamblate în laborator, unde greșeala în cod nu este penalizată, ci încurajată ca instrument de debug.`
+                });
+            }
+
+            if (getOptionPercent(9, 1) >= 0.30) {
+                recommendations.push({
+                    title: "Evaluare bazată pe Portofoliu Practic",
+                    text: `Elevii solicită o reorientare a modului de evaluare. Recomandăm eliminarea testelor clasice sumative bazate pe definiții scrise din caiete și înlocuirea lor cu portofolii online de mini-aplicații practice.`
+                });
+            }
+
+            if (recommendations.length > 0) {
+                recommendations.forEach(rec => {
+                    const block = document.createElement('div');
+                    block.className = "space-y-1 bg-white/5 p-3 rounded-xl border border-white/10";
+                    block.innerHTML = `
+                        <h4 class="font-bold text-amber-300 flex items-center gap-1.5 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                            ${rec.title}
+                        </h4>
+                        <p class="text-[11px] text-slate-300 font-light leading-relaxed">${rec.text}</p>
+                    `;
+                    planContent.appendChild(block);
+                });
+            } else {
+                planContent.innerHTML = `
+                    <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center text-emerald-300 text-xs font-semibold">
+                        Indicatorii clasei sunt stabili. Nu sunt necesare măsuri remediale speciale în acest moment. Continuați cu strategia didactică curentă.
+                    </div>
+                `;
+            }
+        }
+
+        function getOptionPercent(qId, optIdx) {
+            if (studentResponses.length === 0) return 0;
+            let count = 0;
+            studentResponses.forEach(r => {
+                if (r.answers[qId] === optIdx) count++;
+            });
+            return count / studentResponses.length;
+        }
+
+        // --- ALGORITM DE SIMULARE A UNEI CLASE CU COMENTARII SIMULATE ---
+        function generateSimulatedData() {
+            const sampleSize = 30;
+            let generated = [];
+
+            const simulatedComments = [
+                "Îmi plac foarte mult lecțiile în care creăm jocuri mici. Domnul profesor ne ajută mereu când avem erori de cod.",
+                "Mi-aș dori să facem mai puțină teorie pe foaie și să lucrăm mai mult pe calculatoare.",
+                "Atmosfera este super relaxantă în laborator. Îmi place că putem lucra în echipe.",
+                "Ecranele se mișcă puțin cam greu uneori, dar profesorul explică foarte clar pașii de lucru.",
+                "Sunt pasionat de site-uri web, proiectul final în HTML a fost preferatul meu!",
+                "Algoritmii sunt destul de greu de înțeles, dar schemele logice de la tablă m-au ajutat să trec testul.",
+                "Mi-ar plăcea să învățăm și despre inteligența artificială și generarea de imagini.",
+                "Ar fi fain să nu mai dăm teste scrise, evaluarea pe proiecte practice este mult mai corectă.",
+                "Profesorul este foarte răbdător cu noi și nu ne ceartă când greșim liniile de cod.",
+                "TIC-ul este materia mea preferată anul acesta pentru că am învățat lucruri utile pentru viitor."
+            ];
+
+            for (let i = 0; i < sampleSize; i++) {
+                let answers = {};
+                const rand = Math.random();
+                let profile = 2; // mediu
+                if (rand < 0.2) profile = 1; // pasionat
+                else if (rand > 0.8) profile = 3; // stresat/dificultăți
+
+                // Întrebarea 1: Progres
+                if (profile === 1) answers[1] = 0;
+                else if (profile === 2) answers[1] = Math.random() < 0.7 ? 1 : 0;
+                else answers[1] = Math.random() < 0.6 ? 2 : 3;
+
+                // Întrebarea 2: Înțelegere explicații
+                if (profile === 1) answers[2] = 0;
+                else if (profile === 2) answers[2] = Math.random() < 0.8 ? 1 : 2;
+                else answers[2] = Math.random() < 0.5 ? 2 : 3;
+
+                // Întrebarea 3: Managementul timpului
+                const r3 = Math.random();
+                if (r3 < 0.4) answers[3] = 0;
+                else if (r3 < 0.7) answers[3] = 1;
+                else answers[3] = 2;
+
+                // Întrebarea 4: Eficiența instrumentelor
+                answers[4] = Math.floor(Math.random() * 4);
+
+                // Întrebarea 5: Acumulare comparativă
+                if (profile === 1) answers[5] = 0;
+                else if (profile === 2) answers[5] = Math.random() < 0.7 ? 1 : 0;
+                else answers[5] = Math.random() < 0.6 ? 2 : 3;
+
+                // Întrebarea 6: Ce le-a plăcut
+                answers[6] = Math.floor(Math.random() * 4);
+
+                // Întrebarea 7: Climat emoțional
+                if (profile === 1) answers[7] = 0;
+                else if (profile === 2) answers[7] = Math.random() < 0.6 ? 1 : 0;
+                else answers[7] = Math.random() < 0.7 ? 3 : 2;
+
+                // Întrebarea 8: Ora perfectă
+                answers[8] = Math.floor(Math.random() * 4);
+
+                // Întrebarea 9: Direcția de schimbare
+                const r9 = Math.random();
+                if (r9 < 0.45) answers[9] = 1;
+                else if (r9 < 0.7) answers[9] = 0;
+                else answers[9] = Math.random() < 0.5 ? 2 : 3;
+
+                // Întrebarea 10: Apreciere globală
+                if (profile === 1) answers[10] = 0;
+                else if (profile === 2) answers[10] = Math.random() < 0.8 ? 1 : 0;
+                else answers[10] = 2;
+
+                let textFeedback = "";
+                if (Math.random() < 0.4) {
+                    textFeedback = simulatedComments[Math.floor(Math.random() * simulatedComments.length)];
+                }
+
+                generated.push({
+                    id: Date.now() + i,
+                    answers: answers,
+                    textFeedback: textFeedback
+                });
+            }
+
+            studentResponses = generated;
+            localStorage.setItem('student_responses_db', JSON.stringify(studentResponses));
+            updateDashboardUI();
+            showCustomAlert("Eșantion Generat", "Au fost simulate răspunsurile din fișe pentru o clasă formată din 30 de elevi, incluzând comentarii în format liber.", "indigo");
+        }
+
+        function resetData() {
+            studentResponses = [];
+            localStorage.removeItem('student_responses_db');
+            updateDashboardUI();
+            showCustomAlert("Bază Golită", "Toate răspunsurile salvate anterior au fost șterse din memorie.", "amber");
+        }
+
+        // --- SUBMIT COMPLETARE FORMULAR ELEV ---
+        function renderStudentQuiz() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, qIdx) => {
+                const qCard = document.createElement('div');
+                qCard.className = "bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4 print-card";
+                qCard.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <span class="flex-shrink-0 bg-indigo-100 text-indigo-800 text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center mt-0.5">
+                            ${qIdx + 1}
+                        </span>
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">${q.category || 'Evaluare Generală'}</span>
+                            <h3 class="text-sm md:text-base font-semibold text-slate-900 leading-snug">${q.text}</h3>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2 pl-0 md:pl-10">
+                        ${q.options.map((opt, optIdx) => `
+                            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/20 cursor-pointer transition-all">
+                                <input type="radio" name="student_q_${q.id}" value="${optIdx}" required class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 mt-0.5">
+                                <span class="text-xs text-slate-700 leading-tight">${opt.text}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(qCard);
+            });
+        }
+
+        function submitStudentForm(event) {
+            event.preventDefault();
+            
+            let answers = {};
+            let allAnswered = true;
+
+            questions.forEach(q => {
+                const checked = document.querySelector(`input[name="student_q_${q.id}"]:checked`);
+                if (checked) {
+                    answers[q.id] = parseInt(checked.value);
+                } else {
+                    allAnswered = false;
+                }
+            });
+
+            if (!allAnswered) {
+                showCustomAlert("Atenție", "Te rugăm să răspunzi la toate întrebările grilă.", "amber");
+                return;
+            }
+
+            const textFeedback = document.getElementById('student-text-feedback').value || "";
+
+            const newResp = {
+                id: Date.now(),
+                answers: answers,
+                textFeedback: textFeedback
+            };
+
+            studentResponses.push(newResp);
+            localStorage.setItem('student_responses_db', JSON.stringify(studentResponses));
+
+            // Resetăm formularul
+            document.getElementById('quiz-form').reset();
+            document.getElementById('char-counter').innerText = '0';
+            
+            // ELIMINAT openAuthModal() de aici pentru a nu mai forța autentificarea la trimiterea răspunsului!
+            showCustomAlert("Feedback Trimis", "Răspunsul tău a fost colectat în mod anonim și securizat în baza de date locală a profesorului. Îți mulțumim!", "emerald");
+        }
+
+        // --- SISTEM PASTE MANUAL ---
+        function initPasteModalInputs() {
+            const container = document.getElementById('paste-inputs-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                const item = document.createElement('div');
+                item.className = "space-y-1 border-b border-slate-100 pb-2";
+                item.innerHTML = `
+                    <label class="block text-xs font-semibold text-slate-700 leading-snug">Q${idx + 1}. ${q.text}</label>
+                    <select id="paste_q_${q.id}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                        ${q.options.map((opt, optIdx) => `
+                            <option value="${optIdx}">${String.fromCharCode(65 + optIdx)}) ${opt.text.substring(0, 80)}...</option>
+                        `).join('')}
+                    </select>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openPasteModal() {
+            document.getElementById('modal-paste').classList.remove('hidden');
+        }
+
+        function closePasteModal() {
+            document.getElementById('modal-paste').classList.add('hidden');
+        }
+
+        function submitManualAnswers() {
+            let answers = {};
+            questions.forEach(q => {
+                answers[q.id] = parseInt(document.getElementById(`paste_q_${q.id}`).value);
+            });
+
+            const textFeedback = document.getElementById('paste_q_11').value || "";
+
+            studentResponses.push({
+                id: Date.now(),
+                answers: answers,
+                textFeedback: textFeedback
+            });
+
+            localStorage.setItem('student_responses_db', JSON.stringify(studentResponses));
+            
+            document.getElementById('paste_q_11').value = "";
+            
+            closePasteModal();
+            updateDashboardUI();
+            showCustomAlert("Salvat", "Fișa manuală (inclusiv textul liber) a fost salvată în baza de date.", "emerald");
+        }
+
+        // --- UTILS ALERTE ȘI MODALURI ---
+        function showCustomAlert(title, message, theme = "emerald") {
+            const modal = document.getElementById('modal-alert');
+            const mTitle = document.getElementById('modal-title');
+            const mMessage = document.getElementById('modal-message');
+            const iconContainer = document.getElementById('modal-icon-container');
+
+            mTitle.innerText = title;
+            mMessage.innerText = message;
+
+            iconContainer.className = "flex items-center gap-3 mb-3";
+            if (theme === "emerald") {
+                iconContainer.classList.add("text-emerald-600");
+                iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h4 class="text-lg font-bold">${title}</h4>`;
+            } else if (theme === "amber") {
+                iconContainer.classList.add("text-amber-600");
+                iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg><h4 class="text-lg font-bold">${title}</h4>`;
+            } else {
+                iconContainer.classList.add("text-indigo-600");
+                iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h4 class="text-lg font-bold">${title}</h4>`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-alert').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
